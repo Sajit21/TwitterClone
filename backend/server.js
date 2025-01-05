@@ -9,6 +9,7 @@ const PORT=process.env.PORT
 const app= express();
 
 console.log(process.env.MONGO_URI)
+app.use(express.json())
 
 app.use("/api/auth",authRoutes)
 
