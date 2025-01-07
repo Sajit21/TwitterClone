@@ -127,13 +127,25 @@ export const login=async(req, res) => {
  }
 
 
-//  export const logout=async(req, res) => {
-//     try {
-//      const {}
-//     } catch (error) {
-     
-//     }
- 
+ export const logout=async(req, res) => {
+    try {
+     res.cookie("jwt","",{maxAge:0})
+     res.status(200).json({message:"logout successfully "})
+    } catch (error) {
+        console.log("error in logout ontroller",error.message)
+res.status(400).json({error:"internal server error"})
+        
+    }
+}
 
 
-// }
+export const getMe=async(req,res) => {
+
+try {
+
+    const userDetails= await User.findById(req.user._id)
+    
+} catch (error) {
+    
+}
+}
