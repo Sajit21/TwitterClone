@@ -1,5 +1,7 @@
 
 import User from "../model/user.model.js";
+import bcrypt from "bcryptjs"
+import { v2 as cloudinary } from "cloudinary";
 // import { protectRoute } from "../middleware/protectRoute.js";
 export const GetUserProfile=async(req,res)=>{
 try {
@@ -85,25 +87,77 @@ export const getSuggestedUsers=async(req,res)=>{
 
 		
 		//exclude the logged in user and select the random users from the database
-		
+
 		const users = await User.aggregate([
 			{
 				$match:{
-					_id:{$ne:userId}
+					_id:{$ne:userId} //exclude the logged in user 
 				}
 			},
-			{$sample:{size:10}}
+			{$sample:{size:10}} //random userid are selected from the database
 		])
 		const filteredUsers= users.filter(user=>!usersFollowedByMe.following.includes(user._id))
 
 		const suggestedUsers= filteredUsers.slice(0,4)
 
 		suggestedUsers.forEach(user=>user.password=null)
-          res.status(200).forEach(user=>user.password=null)
+          res.status(200).json(suggestedUsers)
 
 
 	} catch (error) {
 		console.log("error in getSuggestedUsers: ", error.message)
 		res.status(500).json({error:error.message})
 		}
+}
+
+export const GetUpdateProfile=async(req,res)=>{
+     const {username,fullname,currentPassword,newPassword,bio,link}=req.body;
+	 let {profileImg,coverImg}=req.body;
+
+	 try {
+		const userId=req.user._id;
+		const user=await User.findById(userId);
+		if(!user){
+			res.status(400).json({message:"user not found"})
+		}
+		if((!currentPassword && newPassword) || (!newPassword && currentPassword))
+        {
+			res.status(400).json({error:"provide both  current password  and new password"})
+		}
+		if(currentPassword && newPassword)
+		{
+			const isMatch=await bcrypt.compare(currentPassword,user.password)
+			if(!isMatch){
+				 return res.status(400).json("current password doesn't match")
+			}
+			if(newPassword.length < 6)
+			{
+				return res.status(400).json({error: "password must be at least 6 character"})
+			}
+
+			const salt= await bcrypt.genSalt(10)
+			user.password=await bcrypt.hash(newPassword,salt)
+
+		}
+
+		if(profileImg){
+			const uploadedResponse = await cloudinary.uploader.upload(profileImg)
+			profileImg = uploadedResponse.secure_url;
+		}
+		
+		if(coverImg){
+			const uploadedResponse = await cloudinary.uploader.upload(coverImg)
+			coverImg = uploadedResponse.secure_url;
+		}
+
+		
+	 } catch (error) {
+		
+	 }
+
+
+
+
+
+
 }
