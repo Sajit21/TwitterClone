@@ -11,7 +11,7 @@ export const signUp=async(req, res) => {
     const emailregex =  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if(!(emailregex).test(email))
     {
-        res.status(400).json({Message: "incorrect format of the email"})
+     return  res.status(400).json({Message: "incorrect format of the email"})
     }
 
     //if tyo username pailai exit cha bhani give error 
@@ -143,9 +143,13 @@ export const getMe=async(req,res) => {
 
 try {
 
-    const userDetails= await User.findById(req.user._id)
+    const user= await User.findById(req.user._id).select("-password")
+    console.log(user)
+    res.status(200).json(user)
     
 } catch (error) {
-    
+
+    console.log("error in getMe controller", error.message);
+    res.status(500).json({error: "internal server error"})    
 }
 }

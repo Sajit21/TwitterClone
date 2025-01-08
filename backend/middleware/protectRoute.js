@@ -1,7 +1,8 @@
 
 
 import User from "../model/user.model.js";
-export const protecteRoute=async(req,res,next)=>{
+import jwt from "jsonwebtoken";
+export const protectRoute=async(req,res,next)=>{
     try {
      //access token
         const token=req.cookies.jwt;
@@ -30,13 +31,14 @@ export const protecteRoute=async(req,res,next)=>{
             res.status(400).json({message: "user not found"})
         }
 
-        //id the decodeduser is created the pass the user to the req.user:- that can be reuse
+        //if the decodeduser is created the pass the user to the req.user:- that can be reuse
         req.user=user;
 
         next(); //if all the process is complete then we move to next part
 
         
-    } catch (error) {
+    } 
+    catch (error) {
 
         console.log("error in protectedRoute middleware",error.message)
         return res.status(500).json({error: "internal server error"})        
