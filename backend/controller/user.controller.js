@@ -84,6 +84,7 @@ export const getSuggestedUsers=async(req,res)=>{
 
 		const userId= req.user._id; //accessing the users id from the mongoose database
 		const usersFollowedByMe= await User.findById(userId).select("following")
+           //Tells Mongoose to only return the following field from the document ie from the logged in user
 
 		
 		//exclude the logged in user and select the random users from the database
@@ -149,6 +150,17 @@ export const GetUpdateProfile=async(req,res)=>{
 			const uploadedResponse = await cloudinary.uploader.upload(coverImg)
 			coverImg = uploadedResponse.secure_url;
 		}
+
+		user.fullname= fullname ||user.fullname;
+		user.email=email ||user.email;
+		user.username=username || user.username;
+		user.bio=bio || user.bio;
+		user.link = link ||user.link;
+		user.profileImg= profileImg ||user.profileImg;
+		user.coverImg= coverImg || user.coverImg
+
+
+		user= await user.save();
 
 		
 	 } catch (error) {
