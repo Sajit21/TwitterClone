@@ -112,12 +112,13 @@ export const getSuggestedUsers=async(req,res)=>{
 }
 
 export const GetUpdateProfile=async(req,res)=>{
-     const {username,fullname,currentPassword,newPassword,bio,link}=req.body;
+     const {username,email,fullname,currentPassword,newPassword,bio,link}=req.body;
 	 let {profileImg,coverImg}=req.body;
+	 const userId=req.user._id;
+
 
 	 try {
-		const userId=req.user._id;
-		const user=await User.findById(userId);
+		let user=await User.findById(userId); //since it has to be update 
 		if(!user){
 			res.status(400).json({message:"user not found"})
 		}
@@ -142,11 +143,17 @@ export const GetUpdateProfile=async(req,res)=>{
 		}
 
 		if(profileImg){
+			if(user.profileImg){
+				await cloudinary.uploader.destroy(user.profileImg.split("/").pop().split(".")[0])
+			}
 			const uploadedResponse = await cloudinary.uploader.upload(profileImg)
 			profileImg = uploadedResponse.secure_url;
 		}
 		
 		if(coverImg){
+			if(user.coverImg){
+				await cloudinary.uploader.destroy(user.coverImg.split("/").pop().split(".")[0])
+			}
 			const uploadedResponse = await cloudinary.uploader.upload(coverImg)
 			coverImg = uploadedResponse.secure_url;
 		}
@@ -161,10 +168,14 @@ export const GetUpdateProfile=async(req,res)=>{
 
 
 		user= await user.save();
+		user.password=null
+
+		return res.status(200).json(user)
 
 		
 	 } catch (error) {
-		
+console.log("error in updateuser:", error.message)
+res.status(500).json({error:error.message})		
 	 }
 
 
