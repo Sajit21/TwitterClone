@@ -72,6 +72,7 @@ export const commentOnPost = async (req, res) => {
 			return res.status(400).json({ error: "Text field is required" });
 		}
 		const post = await Post.findById(postId);
+		
 
 		if (!post) {
 			return res.status(404).json({ error: "Post not found" });
@@ -105,6 +106,7 @@ export const likeUnlikePost = async (req, res) => {
 		if (userLikedPost) {
 			// Unlike post
 			await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+			//post bata liked user hatauna lako
 			await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
 
 			const updatedLikes = post.likes.filter((id) => id.toString() !== userId.toString());
@@ -229,4 +231,6 @@ export const getUserPosts = async (req, res) => {
 		res.status(500).json({ error: "Internal server error" });
 	}
 };
+
+
 

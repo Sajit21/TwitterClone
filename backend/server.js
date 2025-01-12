@@ -37,7 +37,7 @@ app.use(cookieParser())
 app.use("/api/auth",authRoutes)
 app.use("/api/user",userRoutes)
 app.use("/api/posts",postRoutes)
-app.use("/api/notiication",notificationRoutes)
+app.use("/api/notification",notificationRoutes)
 
 
 
