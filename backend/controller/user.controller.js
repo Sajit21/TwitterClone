@@ -1,9 +1,11 @@
 
 import User from "../model/user.model.js";
 import bcrypt from "bcryptjs"
+import Notification from "../model/notification.model.js";
+
 import { v2 as cloudinary } from "cloudinary";
 // import { protectRoute } from "../middleware/protectRoute.js";
-export const GetUserProfile=async(req,res)=>{
+export const getUserProfile=async(req,res)=>{
 try {
 
     const {username}=req.params;
@@ -61,14 +63,14 @@ export const followUnfollowUser = async (req, res) => {
 			await User.findByIdAndUpdate(req.user._id, { $push: { following: id } });
 			
             
-            // // Send notification to the user
-			// const newNotification = new Notification({
-			// 	type: "follow",
-			// 	from: req.user._id,
-			// 	to: userToModify._id,
-			// });
+            // Send notification to the user
+			const newNotification = new Notification({
+				type: "follow",
+				from: req.user._id,
+				to: userToModify._id,
+			});
 
-			// await newNotification.save();
+			await newNotification.save();
 
 			res.status(200).json({ message: "User followed successfully" });
 		}
@@ -111,7 +113,7 @@ export const getSuggestedUsers=async(req,res)=>{
 		}
 }
 
-export const GetUpdateProfile=async(req,res)=>{
+export const getUpdateProfile=async(req,res)=>{
      const {username,email,fullname,currentPassword,newPassword,bio,link}=req.body;
 	 let {profileImg,coverImg}=req.body;
 	 const userId=req.user._id;
